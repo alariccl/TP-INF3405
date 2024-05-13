@@ -1,4 +1,3 @@
-alchea,alchea
 alchaw,asdf
-alchaw,asdf
-alcha,wasdf
+rick,rick
+jimmy,asdf

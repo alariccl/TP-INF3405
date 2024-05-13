@@ -80,9 +80,6 @@ public class Client {
 			// Création d'une nouvelle connexion aves le serveur
 			socket = new Socket(serverAddress, serverPort);
 			System.out.format("Serveur lancé sur [%s:%d]\n", serverAddress, serverPort);
-
-			InputStreamReader in = new InputStreamReader(socket.getInputStream());
-			BufferedReader bf = new BufferedReader(in);			
 			
 			PrintWriter pr = new PrintWriter(socket.getOutputStream());
 			pr.println(username);
@@ -90,10 +87,13 @@ public class Client {
 			
 			pr.println(password);
 			pr.flush();
+		
+			InputStreamReader in = new InputStreamReader(socket.getInputStream());
+			BufferedReader bf = new BufferedReader(in);			
 			
-	        
 	        String messageFromServer = bf.readLine();
 	        System.out.println("server : " + messageFromServer);
+	        
 	        //TODO : ajouter le traitement de l'image
 	    
 //			// fermeture de La connexion avec le serveur

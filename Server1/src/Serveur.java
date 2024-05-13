@@ -38,22 +38,22 @@ public class Serveur {
 		return true;
 	}
 	
-	private static Map<String, String> userDB = new HashMap<>();
+//	private static Map<String, String> userDB = new HashMap<>();
 	private static final String USER_DB_PATH = "userdb.txt";
 
-	public static void loadUserDatabase() throws IOException {
-		try (BufferedReader reader = new BufferedReader(new FileReader(USER_DB_PATH))) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				String[] parts = line.split(",");
-				if (parts.length == 2) {
-					userDB.put(parts[0], parts[1]);
-				}
-			}
-		} catch (FileNotFoundException e){
-			System.out.println("User database file not found.");
-		}
-	}
+//	public static void loadUserDatabase() throws IOException {
+//		try (BufferedReader reader = new BufferedReader(new FileReader(USER_DB_PATH))) {
+//			String line;
+//			while ((line = reader.readLine()) != null) {
+//				String[] parts = line.split(",");
+//				if (parts.length == 2) {
+//					userDB.put(parts[0], parts[1]);
+//				}
+//			}
+//		} catch (FileNotFoundException e){
+//			System.out.println("User database file not found.");
+//		}
+//	}
 	
 	// Application Serveur
 	public static void main(String[] args) throws Exception {
@@ -65,7 +65,7 @@ public class Serveur {
 				if (isValidIPAddress(serverAddress)) {
 					break;
 				} else {
-					System.out.print("Invalid IP address. Please enter a valid IP address\n");
+					System.out.print("Invalid IP address. Please enter a valid IP address");
 				}
 			}
 			int serverPort;
@@ -75,7 +75,7 @@ public class Serveur {
 				if (isValidPort(serverPort)) {
 					break;
 				} else {
-					System.out.print("Invalid port. Please enter a valid Port between 5000 and 5050\n");
+					System.out.print("Invalid port. Please enter a valid Port between 5000 and 5050");
 				}
 			}
 			// Adresse et port du serveur
@@ -91,20 +91,18 @@ public class Serveur {
 			int clientNumber = 0;
 			// À chaque fois qu'un nouveau client se, connecte, on exécute la fonstion
 			// run();  // de l'objet ClientHandler
-			
-			loadUserDatabase();
+//			loadUserDatabase();
 			while (true) {
 				// Important : la fonction accept() est bloquante: attend qu'un prochain client se connecte
 				// Une nouvetle connection : on incémente le compteur clientNumber 
-				System.out.print("Waiting for clients...\n");
+				System.out.print("Waiting for clients...");
 				new ClientHandler(Listener.accept(), clientNumber++).start(); 	// .accept() permet d'accpeter un client dans un server
 																				// .start() permet de commencer le run() qui est implemente dans la classe derivee de Thread
-		        //TODO : ajouter le traitement de l'image
 			}
 		} finally {
 			 // Fermeture de la connexion
 			if (Listener != null && !Listener.isClosed()) {
-				System.out.format("The server is closed\n"); 
+				System.out.format("The server is closed"); 
 				Listener.close();				
 			}
 		} 
