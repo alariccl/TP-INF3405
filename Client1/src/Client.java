@@ -1,6 +1,12 @@
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;  // Importation de Scanner
@@ -94,9 +100,33 @@ public class Client {
 	        String messageFromServer = bf.readLine();
 	        System.out.println("server : " + messageFromServer);
 	        
+	        String IMAGE_PATH = "lassonde.jpg";
 	        //TODO : ajouter le traitement de l'image
-	    
-//			// fermeture de La connexion avec le serveur
+	        
+	        // lis l' image dans un tableau d'octets
+	        File imageFile = new File(IMAGE_PATH);
+	        FileInputStream fis = new FileInputStream(imageFile);
+	        byte[] imageData = new byte[(int) imageFile.length()];
+	        fis.read(imageData);
+	        fis.close();
+	        
+	        // envoyer l' image par le socket
+	        OutputStream os = socket.getOutputStream();
+	        os.write(imageData);
+	        os.flush();
+	        
+	        //recevoir image traite
+	        DataInputStream dis = new DataInputStream(socket.getInputStream());
+	        int length = dis.readInt(); // Read the length of the incoming image data
+	        byte[] processedImageData = new byte[length];
+	        dis.readFully(processedImageData);
+
+	        FileOutputStream fos = new FileOutputStream("image_traite.jpg");
+	        fos.write(processedImageData);
+	        fos.flush();
+	        fos.close();
+
+			// fermeture de La connexion avec le serveur
 			socket.close();
 	}
 }

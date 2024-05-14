@@ -2,8 +2,12 @@
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
+
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,7 +74,7 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 				pr.println("Client registered successfully.\n");
 				pr.flush();
 		        //TODO : ajouter le traitement de l'image
-
+				
 			// si le username existe
 			} else if (!userDB.containsKey(username)) {
 				System.out.print("User not found. Creating a new Client\n");
@@ -89,8 +93,52 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 				pr.println("Authentication successful.");
 				pr.println("Hello from server - you are client#" + clientNumber); // envoi de message				
 				pr.flush();
-		        //TODO : ajouter le traitement de l'image
+				
+				// reception de l' image
+				InputStream is = socket.getInputStream();
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				byte[] buffer = new byte[1024];
+				int bytesRead;
+				while ((bytesRead = is.read(buffer)) != -1) {
+					baos.write(buffer, 0, bytesRead);
+					baos.flush();
+				}
+				
+				FileOutputStream fos = new FileOutputStream("received_image.jpg");
+				fos.write(baos.toByteArray());
+				fos.flush();
+				fos.close();
+			
+				// traitement de l' image
+				BufferedImage image = ImageIO.read(new File("received_image.jpg"));
+				
+				File outputFile = new File("image_traite.jpg");
+				ImageIO.write(Sobel.process(image), "jpg", outputFile);
+				
+//				File imageFile = new File("image_traite.jpg");
+//		        FileInputStream fis = new FileInputStream(imageFile);
+//		        byte[] imageData = new byte[(int) imageFile.length()];
+//		        fis.read(imageData);
+//		        fis.close();
+//		        
+//		        // envoyer l' image par le socket
+//		        OutputStream os = socket.getOutputStream();
+//		        os.write(imageData);
+//		        os.flush();
+				File processedImage = new File("processed_image.jpg");
+				FileInputStream fis = new FileInputStream(processedImage);
+				byte[] imageData = new byte[(int) processedImage.length()];
+				fis.read(imageData);
+				fis.close();
 
+				// Send the length of the image data
+				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+				dos.writeInt(imageData.length);
+				dos.flush();
+
+				// Send the actual image data
+				dos.write(imageData);
+				dos.flush();
 
 			} else {
 				System.out.print("Error authentication failed. Incorrect password.");
