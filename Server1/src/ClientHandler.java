@@ -125,20 +125,22 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 //		        OutputStream os = socket.getOutputStream();
 //		        os.write(imageData);
 //		        os.flush();
-				File processedImage = new File("processed_image.jpg");
-				FileInputStream fis = new FileInputStream(processedImage);
-				byte[] imageData = new byte[(int) processedImage.length()];
-				fis.read(imageData);
-				fis.close();
-
-				// Send the length of the image data
-				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-				dos.writeInt(imageData.length);
-				dos.flush();
-
-				// Send the actual image data
-				dos.write(imageData);
-				dos.flush();
+				
+				
+//				File processedImage = new File("processed_image.jpg");
+//				FileInputStream fis = new FileInputStream(processedImage);
+//				byte[] imageData = new byte[(int) processedImage.length()];
+//				fis.read(imageData);
+//				fis.close();
+//
+//				// Send the length of the image data
+//				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+//				dos.writeInt(imageData.length);
+//				dos.flush();
+//
+//				// Send the actual image data
+//				dos.write(imageData);
+//				dos.flush();
 
 			} else {
 				System.out.print("Error authentication failed. Incorrect password.");

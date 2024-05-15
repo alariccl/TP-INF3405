@@ -116,15 +116,15 @@ public class Client {
 	        os.flush();
 	        
 	        //recevoir image traite
-	        DataInputStream dis = new DataInputStream(socket.getInputStream());
-	        int length = dis.readInt(); // Read the length of the incoming image data
-	        byte[] processedImageData = new byte[length];
-	        dis.readFully(processedImageData);
-
-	        FileOutputStream fos = new FileOutputStream("image_traite.jpg");
-	        fos.write(processedImageData);
-	        fos.flush();
-	        fos.close();
+//	        DataInputStream dis = new DataInputStream(socket.getInputStream());
+//	        int length = dis.readInt(); // Read the length of the incoming image data
+//	        byte[] processedImageData = new byte[length];
+//	        dis.readFully(processedImageData);
+//
+//	        FileOutputStream fos = new FileOutputStream("image_traite.jpg");
+//	        fos.write(processedImageData);
+//	        fos.flush();
+//	        fos.close();
 
 			// fermeture de La connexion avec le serveur
 			socket.close();
