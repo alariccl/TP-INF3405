@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -41,71 +40,84 @@ public class Client {
 	}
 	
 	public static void main(String[] args) throws Exception {
-			// Adresse et port du serveur
+//		try (// Adresse et port du serveur
+//			Scanner scanner = new Scanner(System.in)) {
 			Scanner scanner = new Scanner(System.in);
-			String serverAddress; // = "127.0.0.1";
-			while (true) {
-				System.out.print("Enter IP address: ");
-				serverAddress = scanner.nextLine();
-				if (isValidIPAddress(serverAddress)) {
-					break;
-				} else {
-					System.out.print("Invalid IP address. Please enter a valid IP address\n");
+				String serverAddress; // = "127.0.0.1";
+				while (true) {
+					System.out.print("Enter IP address: ");
+					serverAddress = scanner.nextLine();
+					if (isValidIPAddress(serverAddress)) {
+						break;
+					} else {
+						System.out.print("Invalid IP address. Please enter a valid IP address\n");
+					}
 				}
-			}
-			
-			int serverPort;
-			while (true) {
-				System.out.print("Enter port number: ");
-				serverPort = scanner.nextInt();
-				if (isValidPort(serverPort)) {
-					break;
-				} else {
-					System.out.print("Invalid port. Please enter a valid Port between 5000 and 5050\n");
+				int serverPort;
+				while (true) {
+					System.out.print("Enter port number: ");
+					serverPort = scanner.nextInt();
+					if (isValidPort(serverPort)) {
+						break;
+					} else {
+						System.out.print("Invalid port. Please enter a valid Port between 5000 and 5050\n");
+					}
 				}
-			}
-			
-			String username;
-			while (true) {
-				System.out.print("Enter username: ");
-				username = scanner.next();
-				if (!username.isEmpty()) {
-					break;
+				String username;
+				while (true) {
+					System.out.print("Enter username: ");
+					username = scanner.next();
+					if (!username.isEmpty()) {
+						break;
+					}
 				}
-			}
-			
-			String password;
-			while (true) {
-				System.out.print("Enter password: ");
-				password = scanner.next();
-				if (!password.isEmpty()) {
-					break;
+				String password;
+				while (true) {
+					System.out.print("Enter password: ");
+					password = scanner.next();
+					if (!password.isEmpty()) {
+						break;
+					}
 				}
-			}
-		
-			// Création d'une nouvelle connexion aves le serveur
-			socket = new Socket(serverAddress, serverPort);
-			System.out.format("Serveur lancé sur [%s:%d]\n", serverAddress, serverPort);
-			
-			PrintWriter pr = new PrintWriter(socket.getOutputStream());
-			pr.println(username);
-			pr.flush();
-			
-			pr.println(password);
-			pr.flush();
-		
-//			InputStreamReader in = new InputStreamReader(socket.getInputStream());
-//			BufferedReader bf = new BufferedReader(in);			
+				
+				// Création d'une nouvelle connexion aves le serveur
+				socket = new Socket(serverAddress, serverPort);
+				System.out.format("Serveur lancé sur [%s:%d]\n", serverAddress, serverPort);
+				
+				PrintWriter pr = new PrintWriter(socket.getOutputStream());
+				pr.println(username);
+				pr.flush();
+				
+				pr.println(password);
+				pr.flush();
+				
+				
+//			}
 			
 			InputStream is = socket.getInputStream();
 			BufferedReader bf = new BufferedReader(new InputStreamReader(is));			
 
 	        String messageFromServer = bf.readLine();
-	        System.out.println("server : " + messageFromServer);
+	        System.out.println("Server : " + messageFromServer);
 	        
-	        String IMAGE_PATH = "lassonde.jpg";
+	       // TODO : si le client n' est pas connecter fermer le socket
 	        
-	        // lis l' image dans un tableau d'octets
+//	        String IMAGE_PATH = "lassonde.jpg";
+	        String IMAGE_PATH;
+	        //Scanner scanner = new Scanner(System.in);
+//	        try (Scanner scanner = new Scanner(System.in)) {
+	        	while (true) {
+	        		System.out.print("Enter image name: ");
+	        		IMAGE_PATH = scanner.next();
+	        		if (!IMAGE_PATH.isEmpty()) {
+	        			break;
+	        		}
+	        	}
+//	        }
+	        
+	        // TODO : ajouter un try catch si image n'existe pas
+	        
+	        //lis l' image dans un tableau d'octets
 	        File imageFile = new File(IMAGE_PATH);
 	        FileInputStream fis = new FileInputStream(imageFile);
 	        byte[] imageData = new byte[(int) imageFile.length()];
@@ -118,10 +130,7 @@ public class Client {
 	        os.flush();
 	        socket.shutdownOutput();
 
-		    ///////////////////////////////
-
-////	        // recevoir image traite
-//			InputStream is = socket.getInputStream();
+	        // recevoir image traite
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			byte[] buffer = new byte[1024];
 			int bytesRead;
@@ -129,14 +138,12 @@ public class Client {
 				baos.write(buffer, 0, bytesRead);
 				//baos.flush();
 			}
-//			
 			byte[] processedImageData = baos.toByteArray();
 			
 			FileOutputStream fos = new FileOutputStream("processed_" + IMAGE_PATH);
 			fos.write(processedImageData);
 			fos.close();
 			System.out.println("Processed image received and saved as processed_" + IMAGE_PATH);
-		    ///////////////////////////////
 
 			// fermeture de La connexion avec le serveur
 			socket.close();

@@ -2,13 +2,7 @@
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.util.Scanner;  // Importation de Scanner
-
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Scanner;
 
 public class Serveur {
 	private static ServerSocket Listener; 
@@ -42,13 +36,14 @@ public class Serveur {
 	public static void main(String[] args) throws Exception {
 		try (Scanner scanner = new Scanner(System.in)) {
 			String serverAddress;
+			// Demande adresse et port du serveur
 			while (true) {
 				System.out.print("Enter IP address: ");
 				serverAddress = scanner.nextLine();
 				if (isValidIPAddress(serverAddress)) {
 					break;
 				} else {
-					System.out.print("Invalid IP address. Please enter a valid IP address");
+					System.out.print("Invalid IP address. Please enter a valid IP address\n");
 				}
 			}
 			int serverPort;
@@ -58,11 +53,10 @@ public class Serveur {
 				if (isValidPort(serverPort)) {
 					break;
 				} else {
-					System.out.print("Invalid port. Please enter a valid Port between 5000 and 5050");
+					System.out.print("Invalid port. Please enter a valid Port between 5000 and 5050\n");
 				}
 			}
-			// Adresse et port du serveur
-			// Création de la connexien pour communiquer ave les, clients
+			// Création de la connexien pour communiquer avec les clients
 			Listener = new ServerSocket();
 			Listener.setReuseAddress(true);
 			InetAddress serverIP = InetAddress.getByName(serverAddress);
@@ -77,14 +71,14 @@ public class Serveur {
 			while (true) {
 				// Important : la fonction accept() est bloquante: attend qu'un prochain client se connecte
 				// Une nouvetle connection : on incémente le compteur clientNumber 
-				System.out.print("Waiting for clients...");
+				System.out.print("Waiting for clients...\n");
 				new ClientHandler(Listener.accept(), clientNumber++).start(); 	// .accept() permet d'accpeter un client dans un server
 																				// .start() permet de commencer le run() qui est implemente dans la classe derivee de Thread
 			}
 		} finally {
 			 // Fermeture de la connexion
 			if (Listener != null && !Listener.isClosed()) {
-				System.out.format("The server is closed"); 
+				System.out.format("The server is closed\n"); 
 				Listener.close();				
 			}
 		} 
