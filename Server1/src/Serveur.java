@@ -38,23 +38,6 @@ public class Serveur {
 		return true;
 	}
 	
-//	private static Map<String, String> userDB = new HashMap<>();
-	private static final String USER_DB_PATH = "userdb.txt";
-
-//	public static void loadUserDatabase() throws IOException {
-//		try (BufferedReader reader = new BufferedReader(new FileReader(USER_DB_PATH))) {
-//			String line;
-//			while ((line = reader.readLine()) != null) {
-//				String[] parts = line.split(",");
-//				if (parts.length == 2) {
-//					userDB.put(parts[0], parts[1]);
-//				}
-//			}
-//		} catch (FileNotFoundException e){
-//			System.out.println("User database file not found.");
-//		}
-//	}
-	
 	// Application Serveur
 	public static void main(String[] args) throws Exception {
 		try (Scanner scanner = new Scanner(System.in)) {
@@ -91,7 +74,6 @@ public class Serveur {
 			int clientNumber = 0;
 			// À chaque fois qu'un nouveau client se, connecte, on exécute la fonstion
 			// run();  // de l'objet ClientHandler
-//			loadUserDatabase();
 			while (true) {
 				// Important : la fonction accept() est bloquante: attend qu'un prochain client se connecte
 				// Une nouvetle connection : on incémente le compteur clientNumber 

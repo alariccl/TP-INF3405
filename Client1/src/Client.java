@@ -94,14 +94,16 @@ public class Client {
 			pr.println(password);
 			pr.flush();
 		
-			InputStreamReader in = new InputStreamReader(socket.getInputStream());
-			BufferedReader bf = new BufferedReader(in);			
+//			InputStreamReader in = new InputStreamReader(socket.getInputStream());
+//			BufferedReader bf = new BufferedReader(in);			
 			
+			InputStream is = socket.getInputStream();
+			BufferedReader bf = new BufferedReader(new InputStreamReader(is));			
+
 	        String messageFromServer = bf.readLine();
 	        System.out.println("server : " + messageFromServer);
 	        
 	        String IMAGE_PATH = "lassonde.jpg";
-	        //TODO : ajouter le traitement de l'image
 	        
 	        // lis l' image dans un tableau d'octets
 	        File imageFile = new File(IMAGE_PATH);
@@ -114,17 +116,27 @@ public class Client {
 	        OutputStream os = socket.getOutputStream();
 	        os.write(imageData);
 	        os.flush();
-	        
-	        //recevoir image traite
-//	        DataInputStream dis = new DataInputStream(socket.getInputStream());
-//	        int length = dis.readInt(); // Read the length of the incoming image data
-//	        byte[] processedImageData = new byte[length];
-//	        dis.readFully(processedImageData);
-//
-//	        FileOutputStream fos = new FileOutputStream("image_traite.jpg");
-//	        fos.write(processedImageData);
-//	        fos.flush();
-//	        fos.close();
+	        socket.shutdownOutput();
+
+		    ///////////////////////////////
+
+////	        // recevoir image traite
+//			InputStream is = socket.getInputStream();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			int bytesRead;
+			while ((bytesRead = is.read(buffer)) != -1) {
+				baos.write(buffer, 0, bytesRead);
+				//baos.flush();
+			}
+//			
+			byte[] processedImageData = baos.toByteArray();
+			
+			FileOutputStream fos = new FileOutputStream("processed_" + IMAGE_PATH);
+			fos.write(processedImageData);
+			fos.close();
+			System.out.println("Processed image received and saved as processed_" + IMAGE_PATH);
+		    ///////////////////////////////
 
 			// fermeture de La connexion avec le serveur
 			socket.close();
