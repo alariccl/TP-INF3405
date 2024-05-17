@@ -9,7 +9,6 @@ import java.io.*;
 public class ClientHandler extends Thread { // pour traiter la demande de chaque client sur un socket particulier
 	private Socket socket; 
 	private int clientNumber; 
-	
 	private static Map<String, String> userDB = new HashMap<>();
 	private static final String USER_DB_PATH = "userdb.txt";
 	
