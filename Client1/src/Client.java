@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -161,6 +162,10 @@ public class Client {
         	fos.write(processedImageData);
         	fos.close();
         	System.out.println("Processed image received and saved as processed_" + imageName);
+        } catch (NullPointerException e) {
+        	System.out.println("Image not found.");
+        } catch (FileNotFoundException f) {
+        	System.out.println("Image not found.");
         }
         finally {
         	// fermeture de La connexion avec le serveur
