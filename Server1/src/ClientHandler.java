@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.time.LocalDateTime;  
+import java.time.format.DateTimeFormatter;  
 
 public class ClientHandler extends Thread { // pour traiter la demande de chaque client sur un socket particulier
 	private Socket socket; 
@@ -92,6 +94,10 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 	        String password = bf.readLine();
 	        System.out.println("client password: " + password);
 	        
+	        String processedImageNom = bf.readLine();
+//	        String processedImageNom = "a changer";
+	        System.out.println("image :" + processedImageNom);
+	        
 	        // si le database est vide
 	        loadUserDatabase();
 			if (userDB.isEmpty()) {
@@ -102,6 +108,7 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 				pr.flush();
 				// reception de l' image
 				receiveImage(socket);
+				
 				// traitement de l' image
 				applySobelFilter();
 				// envoi de l' image traite
@@ -117,6 +124,8 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 				pr.flush();
 				// reception de l' image
 				receiveImage(socket);
+				//System.out.println(username + " - " + socket.getLocalAddress() + ":" + socket.getLocalPort() + " - ");
+				
 				// traitement de l' image
 				applySobelFilter();
 				// envoi de l' image traite
@@ -133,6 +142,17 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 				pr.flush();
 				// reception de l' image
 				receiveImage(socket);
+				
+				LocalDateTime now = LocalDateTime.now();
+				DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy@HH:mm:ss");
+				String formatDateTime = now.format(format);
+				System.out.println("[" + username + " - " 
+								+ socket.getLocalAddress() + ":" 
+								+ socket.getLocalPort() + " - " 
+								+ formatDateTime + "] : Image "
+								+ processedImageNom 
+								+ " received for processing") ;
+
 				// traitement de l' image
 				applySobelFilter();
 				// envoi de l' image traite
@@ -145,6 +165,8 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 			}
 		} catch (IOException e) {
 			System.out.println("Error handling client# " + clientNumber + ": " + e + "\n");
+		}catch (NullPointerException e) { 
+			System.out.println("Image not found.");
 		} finally {
 			try {
 				socket.close();

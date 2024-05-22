@@ -14,7 +14,10 @@ import java.util.Scanner;  // Importation de Scanner
 
 // Application client
 public class Client {
-	private static Socket socket;
+	 private static final int PORT_MIN = 5000;
+	   private static final int PORT_MAX = 5050;	
+	   
+	   private static Socket socket;
 	
 	private static boolean isValidIPAddress(String ipAddress) {
 		String[] parts = ipAddress.split("\\.");
@@ -35,7 +38,7 @@ public class Client {
 	}
 	
 	private static boolean isValidPort(int serverPort) {
-		if (serverPort < 5000 || serverPort > 5050) {
+		if (serverPort < PORT_MIN || serverPort > PORT_MAX) {
 			return false;
 		}
 		return true;
@@ -89,13 +92,19 @@ public class Client {
 		}
 	}
 	
-	public static void sendUsernamePassword(Socket socket, String username, String password) throws IOException {
-		PrintWriter pr = new PrintWriter(socket.getOutputStream());
+	public static void sendUsernamePassword(Socket socket, PrintWriter pr,String username, String password) throws IOException {
+		//PrintWriter pr = new PrintWriter(socket.getOutputStream());
 		pr.println(username);
 		pr.flush();
 		pr.println(password);
 		pr.flush();
 		}
+	
+	public static void sendProcessedImageName(Socket socket, PrintWriter pr, String processedImageName) throws IOException {
+		//PrintWriter pr = new PrintWriter(socket.getOutputStream());
+		pr.println(processedImageName);
+		pr.flush();
+	}
 	
 	public static String askImageName(Scanner scanner) {
 		String imageName;
@@ -108,31 +117,51 @@ public class Client {
     	}
 	}
 	
+	public static String askProcessedImageName(Scanner scanner) {
+		String processedImageName;
+    	while (true) {
+    		System.out.print("Enter processed image name: ");
+    		processedImageName = scanner.next();
+    		if (!processedImageName.isEmpty()) {
+    			return processedImageName;
+    		}
+    	}
+	}
+	
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner(System.in);
+		
 		String serverAddress = askServerAddress(scanner);
 		int serverPort = askServerPort(scanner);
 		String username = askUsername(scanner);
 		String password = askPassword(scanner);
-
+		
+		String imageName = askImageName(scanner);
+        String processedImageName = askProcessedImageName(scanner);
 		// Création d'une nouvelle connexion aves le serveur
 		socket = new Socket(serverAddress, serverPort);
+//		Socket socket = new Socket(serverAddress, serverPort);
 		System.out.format("Serveur lancé sur [%s:%d]\n", serverAddress, serverPort);
 		
 		// envoyer username et password au serveur
-		sendUsernamePassword(socket, username, password);
-		
+		PrintWriter pr = new PrintWriter(socket.getOutputStream());
+		sendUsernamePassword(socket, pr, username, password);
+    	sendProcessedImageName(socket, pr, processedImageName);
+
 		// prepare a recevoir l'image
 		InputStream is = socket.getInputStream();
 		BufferedReader bf = new BufferedReader(new InputStreamReader(is));			
 
         String messageFromServer = bf.readLine();
         System.out.println("Server : " + messageFromServer);
-        
+
        // TODO : si le client n' est pas connecter fermer le socket
         
-        String imageName = askImageName(scanner);
+        //String imageName = askImageName(scanner);
+        //String processedImageName = askProcessedImageName(scanner);
     	scanner.close();
+//    	sendProcessedImageName(socket, pr, processedImageName);
+
         
         // TODO : ajouter un try catch si image n'existe pas
         try {
@@ -148,6 +177,7 @@ public class Client {
         	os.write(imageData);
         	os.flush();
         	socket.shutdownOutput();
+        	System.out.println("Image sent for processing");
         	
         	// recevoir image traite
         	ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -158,10 +188,14 @@ public class Client {
         	}
         	byte[] processedImageData = baos.toByteArray();
         	
-        	FileOutputStream fos = new FileOutputStream("processed_" + imageName);
+        	FileOutputStream fos = new FileOutputStream(processedImageName);
         	fos.write(processedImageData);
         	fos.close();
-        	System.out.println("Processed image received and saved as processed_" + imageName);
+        	
+        	System.out.println("Processed image received and saved as " + processedImageName);
+        	String processedImageFile = new File(processedImageName).getAbsolutePath();
+        	System.out.println("in folder : " + processedImageFile);
+        	
         } catch (NullPointerException e) {
         	System.out.println("Image not found.");
         } catch (FileNotFoundException f) {
@@ -169,7 +203,7 @@ public class Client {
         }
         finally {
         	// fermeture de La connexion avec le serveur
-		socket.close();
+        	socket.close();
         }
 	}
 }

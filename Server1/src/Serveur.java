@@ -75,7 +75,7 @@ public class Serveur {
 				new ClientHandler(Listener.accept(), clientNumber++).start(); 	// .accept() permet d'accpeter un client dans un server
 																				// .start() permet de commencer le run() qui est implemente dans la classe derivee de Thread
 			}
-		} finally {
+		}finally {
 			 // Fermeture de la connexion
 			if (Listener != null && !Listener.isClosed()) {
 				System.out.format("The server is closed\n"); 
