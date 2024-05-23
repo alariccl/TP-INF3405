@@ -1,4 +1,5 @@
 alchaw,asdf
+tick,asdf
+alcha,asdf
 rick,rick
-jimmy,asdf
-chien,chien
+alchas,a
