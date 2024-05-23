@@ -141,17 +141,13 @@ public class Client {
 		String username = askUsername(scanner);
 		String password = askPassword(scanner);
 		
-		// Création d'une nouvelle connexion aves le serveur
 		socket = new Socket(serverAddress, serverPort);
 		System.out.format("The server is running on %s:%d%n", serverAddress, serverPort);
 		
-		// envoyer username et password au serveur
 		sendUsernamePassword(socket, pr, username, password);
 
-		// prepare a recevoir l'image
 		InputStream is = socket.getInputStream();
 		BufferedReader bf = new BufferedReader(new InputStreamReader(is));			
-
         String messageFromServer = bf.readLine();
         System.out.println("Server : " + messageFromServer);
         
@@ -164,14 +160,9 @@ public class Client {
         String imageName = askImageName(scanner);
         String processedImageName = askProcessedImageName(scanner);
         sendProcessedImageName(socket, pr, processedImageName);
-
-       // TODO : si le client n' est pas connecter fermer le socket
-        //String imageName = askImageName(scanner);
-        //String processedImageName = askProcessedImageName(scanner);
-    	scanner.close();
-
         
-        // TODO : ajouter un try catch si image n'existe pas
+    	scanner.close();
+     
         try {
         	//lis l' image dans un tableau d'octets
         	File imageFile = new File(imageName);
