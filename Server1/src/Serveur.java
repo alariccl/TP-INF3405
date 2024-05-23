@@ -5,6 +5,12 @@ import java.net.ServerSocket;
 import java.util.Scanner;
 
 public class Serveur {
+	
+	private static final int PORT_MIN = 5000;
+	private static final int PORT_MAX = 5050;  
+	private static final int IP_MIN = 0;
+	private static final int IP_MAX = 255;
+	
 	private static ServerSocket Listener; 
 	
 	private static boolean isValidIPAddress(String ipAddress) {
@@ -15,7 +21,7 @@ public class Serveur {
 		for (String part : parts) {
 			try {
 				int intPart = Integer.parseInt(part);
-				if (intPart < 0 || intPart > 255) {
+				if (intPart < IP_MIN || intPart > IP_MAX) {
 					return false;
 				}
 			} catch (NumberFormatException e) {
@@ -26,17 +32,15 @@ public class Serveur {
 	}
 	
 	private static boolean isValidPort(int serverPort) {
-		if (serverPort < 5000 || serverPort > 5050) {
+		if (serverPort < PORT_MIN || serverPort > PORT_MAX) {
 			return false;
 		}
 		return true;
 	}
 	
-	// Application Serveur
 	public static void main(String[] args) throws Exception {
 		try (Scanner scanner = new Scanner(System.in)) {
 			String serverAddress;
-			// Demande adresse et port du serveur
 			while (true) {
 				System.out.print("Enter IP address: ");
 				serverAddress = scanner.nextLine();
@@ -46,6 +50,7 @@ public class Serveur {
 					System.out.print("Invalid IP address. Please enter a valid IP address\n");
 				}
 			}
+			
 			int serverPort;
 			while (true) {
 				System.out.print("Enter port number: ");
@@ -56,27 +61,18 @@ public class Serveur {
 					System.out.print("Invalid port. Please enter a valid Port between 5000 and 5050\n");
 				}
 			}
-			// Création de la connexien pour communiquer avec les clients
+			
 			Listener = new ServerSocket();
 			Listener.setReuseAddress(true);
 			InetAddress serverIP = InetAddress.getByName(serverAddress);
-			// Association de l'adresse et du port à la connexion
 			Listener.bind(new InetSocketAddress(serverIP, serverPort));
 			System.out.format("The server is running on %s:%d%n", serverAddress, serverPort);
-			
-			// Compteur incrémenté à chaque connexion d'un client au serveur
 			int clientNumber = 0;
-			// À chaque fois qu'un nouveau client se, connecte, on exécute la fonstion
-			// run();  // de l'objet ClientHandler
 			while (true) {
-				// Important : la fonction accept() est bloquante: attend qu'un prochain client se connecte
-				// Une nouvetle connection : on incémente le compteur clientNumber 
 				System.out.print("Waiting for clients...\n");
-				new ClientHandler(Listener.accept(), clientNumber++).start(); 	// .accept() permet d'accpeter un client dans un server
-																				// .start() permet de commencer le run() qui est implemente dans la classe derivee de Thread
+				new ClientHandler(Listener.accept(), clientNumber++).start();
 			}
-		}finally {
-			 // Fermeture de la connexion
+		} finally {
 			if (Listener != null && !Listener.isClosed()) {
 				System.out.format("The server is closed\n"); 
 				Listener.close();				

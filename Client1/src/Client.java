@@ -136,17 +136,13 @@ public class Client {
 		String username = askUsername(scanner);
 		String password = askPassword(scanner);
 		
-		String imageName = askImageName(scanner);
-        String processedImageName = askProcessedImageName(scanner);
 		// Création d'une nouvelle connexion aves le serveur
 		socket = new Socket(serverAddress, serverPort);
-//		Socket socket = new Socket(serverAddress, serverPort);
 		System.out.format("Serveur lancé sur [%s:%d]\n", serverAddress, serverPort);
 		
 		// envoyer username et password au serveur
 		PrintWriter pr = new PrintWriter(socket.getOutputStream());
 		sendUsernamePassword(socket, pr, username, password);
-    	sendProcessedImageName(socket, pr, processedImageName);
 
 		// prepare a recevoir l'image
 		InputStream is = socket.getInputStream();
@@ -154,13 +150,21 @@ public class Client {
 
         String messageFromServer = bf.readLine();
         System.out.println("Server : " + messageFromServer);
+        
+        if ("Error authentication failed. Incorrect password.".equals(messageFromServer)) {
+        	System.out.println("Password incorrect. Disconnectiong.");
+        	socket.close();
+        	return;
+        }
+        
+        String imageName = askImageName(scanner);
+        String processedImageName = askProcessedImageName(scanner);
+        sendProcessedImageName(socket, pr, processedImageName);
 
        // TODO : si le client n' est pas connecter fermer le socket
-        
         //String imageName = askImageName(scanner);
         //String processedImageName = askProcessedImageName(scanner);
     	scanner.close();
-//    	sendProcessedImageName(socket, pr, processedImageName);
 
         
         // TODO : ajouter un try catch si image n'existe pas

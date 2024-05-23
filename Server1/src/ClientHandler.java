@@ -94,9 +94,7 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 	        String password = bf.readLine();
 	        System.out.println("client password: " + password);
 	        
-	        String processedImageNom = bf.readLine();
-//	        String processedImageNom = "a changer";
-	        System.out.println("image :" + processedImageNom);
+	        
 	        
 	        // si le database est vide
 	        loadUserDatabase();
@@ -106,10 +104,20 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 				//envoyer au client le message 
 				pr.println("Client registered successfully.\n");
 				pr.flush();
+				String processedImageNom = bf.readLine();
+//		        String processedImageNom = "a changer";
+		        System.out.println("image :" + processedImageNom);
 				// reception de l' image
 				receiveImage(socket);
-				
-				// traitement de l' image
+				LocalDateTime now = LocalDateTime.now();
+				DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy@HH:mm:ss");
+				String formatDateTime = now.format(format);
+				System.out.println("[" + username + " - " 
+								+ socket.getLocalAddress() + ":" 
+								+ socket.getLocalPort() + " - " 
+								+ formatDateTime + "] : Image "
+								+ processedImageNom 
+								+ " received for processing");				// traitement de l' image
 				applySobelFilter();
 				// envoi de l' image traite
 				sendImage();
@@ -122,10 +130,20 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 				pr.println("User not found. Creating a new Client\n");
 				pr.println("Client registered successfully.\n");
 				pr.flush();
+				String processedImageNom = bf.readLine();
+//		        String processedImageNom = "a changer";
+		        System.out.println("image :" + processedImageNom);
 				// reception de l' image
 				receiveImage(socket);
-				//System.out.println(username + " - " + socket.getLocalAddress() + ":" + socket.getLocalPort() + " - ");
-				
+				LocalDateTime now = LocalDateTime.now();
+				DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy@HH:mm:ss");
+				String formatDateTime = now.format(format);
+				System.out.println("[" + username + " - " 
+								+ socket.getLocalAddress() + ":" 
+								+ socket.getLocalPort() + " - " 
+								+ formatDateTime + "] : Image "
+								+ processedImageNom 
+								+ " received for processing");				
 				// traitement de l' image
 				applySobelFilter();
 				// envoi de l' image traite
@@ -138,9 +156,14 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 				System.out.print("Hello from server - you are client#" + clientNumber + "\n"); // envoi de message				
 				//envoyer au client le message 
 				pr.println("Authentication successful.\n");
-				pr.println("Hello from server - you are client#" + clientNumber + "\n"); // envoi de message				
+				pr.println("Hello from server - you are client#" + clientNumber + "\n"); // envoi de message
 				pr.flush();
+				
+				String processedImageNom = bf.readLine();
+		        System.out.println("image :" + processedImageNom);
+		        
 				// reception de l' image
+		       
 				receiveImage(socket);
 				
 				LocalDateTime now = LocalDateTime.now();
@@ -151,7 +174,7 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 								+ socket.getLocalPort() + " - " 
 								+ formatDateTime + "] : Image "
 								+ processedImageNom 
-								+ " received for processing") ;
+								+ " received for processing");
 
 				// traitement de l' image
 				applySobelFilter();
@@ -160,7 +183,7 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 		        socket.shutdownOutput();
 			} else {
 				System.out.print("Error authentication failed. Incorrect password.\n");
-				pr.println("Error authentication failed. Incorrect password.\n");
+				pr.println("Error authentication failed. Incorrect password.");
 				pr.flush();
 			}
 		} catch (IOException e) {
