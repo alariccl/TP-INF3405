@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -14,20 +15,23 @@ import java.util.Scanner;  // Importation de Scanner
 
 // Application client
 public class Client {
-	 private static final int PORT_MIN = 5000;
-	   private static final int PORT_MAX = 5050;	
-	   
-	   private static Socket socket;
+	private static final int PORT_MIN 	= 5000;
+	private static final int PORT_MAX 	= 5050;	
+	private static final int IP_MIN 	= 0;
+	private static final int IP_MAX 	= 255;
+	private static final int IP_PARTS 	= 4;
+	
+	private static Socket socket;
 	
 	private static boolean isValidIPAddress(String ipAddress) {
 		String[] parts = ipAddress.split("\\.");
-		if (parts.length != 4) {
+		if (parts.length != IP_PARTS) {
 			return false;
 		}
 		for (String part : parts) {
 			try {
 				int intPart = Integer.parseInt(part);
-				if (intPart < 0 || intPart > 255) {
+				if (intPart < IP_MIN || intPart > IP_MAX) {
 					return false;
 				}
 			} catch (NumberFormatException e) {
@@ -44,7 +48,7 @@ public class Client {
 		return true;
 	}
 	
-	public static String askServerAddress(Scanner scanner) {
+	private static String askServerAddress(Scanner scanner) {
 		String serverAddress;
 		while (true) {
 			System.out.print("Enter IP address: ");
@@ -57,7 +61,7 @@ public class Client {
 		}
 	}
 	
-	public static int askServerPort(Scanner scanner) {
+	private static int askServerPort(Scanner scanner) {
 		int serverPort;
 		while (true) {
 			System.out.print("Enter port number: ");
@@ -70,7 +74,7 @@ public class Client {
 		}
 	}
 	
-	public static String askUsername(Scanner scanner) {
+	private static String askUsername(Scanner scanner) {
 		String username;
 		while (true) {
 			System.out.print("Enter username: ");
@@ -81,7 +85,7 @@ public class Client {
 		}
 	}
 	
-	public static String askPassword(Scanner scanner) {
+	private static String askPassword(Scanner scanner) {
 		String password;
 		while (true) {
 			System.out.print("Enter password: ");
@@ -92,21 +96,21 @@ public class Client {
 		}
 	}
 	
-	public static void sendUsernamePassword(Socket socket, PrintWriter pr,String username, String password) throws IOException {
-		//PrintWriter pr = new PrintWriter(socket.getOutputStream());
+	private static void sendUsernamePassword(Socket socket, PrintWriter pr,String username, String password)
+			throws IOException {
 		pr.println(username);
 		pr.flush();
 		pr.println(password);
 		pr.flush();
-		}
+	}
 	
-	public static void sendProcessedImageName(Socket socket, PrintWriter pr, String processedImageName) throws IOException {
-		//PrintWriter pr = new PrintWriter(socket.getOutputStream());
+	private static void sendProcessedImageName(Socket socket, PrintWriter pr, String processedImageName) 
+			throws IOException {
 		pr.println(processedImageName);
 		pr.flush();
 	}
 	
-	public static String askImageName(Scanner scanner) {
+	private static String askImageName(Scanner scanner) {
 		String imageName;
     	while (true) {
     		System.out.print("Enter image name: ");
@@ -117,7 +121,7 @@ public class Client {
     	}
 	}
 	
-	public static String askProcessedImageName(Scanner scanner) {
+	private static String askProcessedImageName(Scanner scanner) {
 		String processedImageName;
     	while (true) {
     		System.out.print("Enter processed image name: ");
@@ -130,6 +134,7 @@ public class Client {
 	
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner(System.in);
+		PrintWriter pr = new PrintWriter(socket.getOutputStream());
 		
 		String serverAddress = askServerAddress(scanner);
 		int serverPort = askServerPort(scanner);
@@ -138,10 +143,9 @@ public class Client {
 		
 		// Création d'une nouvelle connexion aves le serveur
 		socket = new Socket(serverAddress, serverPort);
-		System.out.format("Serveur lancé sur [%s:%d]\n", serverAddress, serverPort);
+		System.out.format("The server is running on %s:%d%n", serverAddress, serverPort);
 		
 		// envoyer username et password au serveur
-		PrintWriter pr = new PrintWriter(socket.getOutputStream());
 		sendUsernamePassword(socket, pr, username, password);
 
 		// prepare a recevoir l'image
@@ -206,7 +210,6 @@ public class Client {
         	System.out.println("Image not found.");
         }
         finally {
-        	// fermeture de La connexion avec le serveur
         	socket.close();
         }
 	}

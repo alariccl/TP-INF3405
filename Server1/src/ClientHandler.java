@@ -8,11 +8,11 @@ import java.io.*;
 import java.time.LocalDateTime;  
 import java.time.format.DateTimeFormatter;  
 
-public class ClientHandler extends Thread { // pour traiter la demande de chaque client sur un socket particulier
+public class ClientHandler extends Thread { 
 	private Socket socket; 
 	private int clientNumber; 
-	private static Map<String, String> userDB = new HashMap<>();
 	private static final String USER_DB_PATH = "userdb.txt";
+	private static Map<String, String> userDB = new HashMap<>();
 	
 	public static void loadUserDatabase() throws IOException {
 		try (BufferedReader reader = new BufferedReader(new FileReader(USER_DB_PATH))) {
@@ -28,20 +28,14 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 		}
 	}
 	
-	private static synchronized void registerNewUser(FileWriter userDataBase, String username, String password) throws IOException {
+	private static synchronized void registerNewUser(FileWriter userDataBase, String username, String password) 
+			throws IOException {
 		userDB.put(username, password);
-		try {
-			userDataBase.write(username);
-			userDataBase.write(",");
-			userDataBase.write(password + "\n");
-			userDataBase.close();
-		}
-		catch (Exception e) {
-			e.getStackTrace();
-		}
+		userDataBase.write(username + "," + password + "\n");
+		userDataBase.close();
 	}
 	
-	public static void receiveImage(Socket socket) throws IOException {
+	private static void receiveImage(Socket socket) throws IOException {
     	InputStream is = socket.getInputStream();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
@@ -49,31 +43,41 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 		while ((bytesRead = is.read(buffer)) != -1) {
 			baos.write(buffer, 0, bytesRead);
 		}
-		//creation du fichier recu
 		FileOutputStream fos = new FileOutputStream("received_image.jpg");
 		fos.write(baos.toByteArray());
 		fos.flush();
 		fos.close();
     }
 	
-	public void applySobelFilter() throws IOException {
+	private void applySobelFilter() throws IOException {
 		BufferedImage image = ImageIO.read(new File("received_image.jpg"));
 		File outputFile = new File("image_traite.jpg");
 		ImageIO.write(Sobel.process(image), "jpg", outputFile);
 	}
 	
-	public void sendImage() throws IOException {
+	private void sendImage() throws IOException {
     	File outputFile = new File("image_traite.jpg");
         FileInputStream fis = new FileInputStream(outputFile);
         byte[] imageOutputData = new byte[(int) outputFile.length()];
         fis.read(imageOutputData);
         fis.close();
         
-        // envoyer l' image par le socket
         OutputStream os1 = socket.getOutputStream();
         os1.write(imageOutputData);
         os1.flush();
     }
+	
+	private static void printClientInformation(Socket socket, String username, String password, String processedImageNom) {
+		LocalDateTime now = LocalDateTime.now();
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy@HH:mm:ss");
+		String formatDateTime = now.format(format);
+		System.out.println("[" + username + " - " 
+						+ socket.getLocalAddress() + ":" 
+						+ socket.getLocalPort() + " - " 
+						+ formatDateTime + "] : Image "
+						+ processedImageNom 
+						+ " received for processing");	
+	}
 	
 	public ClientHandler(Socket socket, int clientNumber) {
 		this.socket = socket;
@@ -81,48 +85,34 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 		System.out.println("New connection with client#" + clientNumber + " at" + socket);
 	}
 	
-	public void run() { // Création de thread qui envoi un message à un client
+	public void run() {
 		try {
 			FileWriter userDataBase = new FileWriter(USER_DB_PATH, true);
+			
 			OutputStream os = socket.getOutputStream();
 			PrintWriter pr = new PrintWriter(os);
+			
 			InputStreamReader in = new InputStreamReader(socket.getInputStream());
 	        BufferedReader bf = new BufferedReader(in);
 	        
 	        String username = bf.readLine();
-	        System.out.println("client username: " + username);
-	        String password = bf.readLine();
-	        System.out.println("client password: " + password);
-	        
-	        
-	        
-	        // si le database est vide
+	        String password = bf.readLine();	        
+	   
 	        loadUserDatabase();
+	        
 			if (userDB.isEmpty()) {
 				registerNewUser(userDataBase, username, password);
 				System.out.print("Client registered successfully.\n");
-				//envoyer au client le message 
 				pr.println("Client registered successfully.\n");
 				pr.flush();
+				
 				String processedImageNom = bf.readLine();
-//		        String processedImageNom = "a changer";
-		        System.out.println("image :" + processedImageNom);
-				// reception de l' image
 				receiveImage(socket);
-				LocalDateTime now = LocalDateTime.now();
-				DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy@HH:mm:ss");
-				String formatDateTime = now.format(format);
-				System.out.println("[" + username + " - " 
-								+ socket.getLocalAddress() + ":" 
-								+ socket.getLocalPort() + " - " 
-								+ formatDateTime + "] : Image "
-								+ processedImageNom 
-								+ " received for processing");				// traitement de l' image
+				printClientInformation(socket, username, password, processedImageNom);
 				applySobelFilter();
-				// envoi de l' image traite
 				sendImage();
-		        socket.shutdownOutput();				
-			// si le username existe
+		        socket.shutdownOutput();
+		        
 			} else if (!userDB.containsKey(username)) {
 				System.out.print("User not found. Creating a new Client\n");
 				registerNewUser(userDataBase, username, password);
@@ -130,57 +120,30 @@ public class ClientHandler extends Thread { // pour traiter la demande de chaque
 				pr.println("User not found. Creating a new Client\n");
 				pr.println("Client registered successfully.\n");
 				pr.flush();
+				
 				String processedImageNom = bf.readLine();
-//		        String processedImageNom = "a changer";
 		        System.out.println("image :" + processedImageNom);
-				// reception de l' image
 				receiveImage(socket);
-				LocalDateTime now = LocalDateTime.now();
-				DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy@HH:mm:ss");
-				String formatDateTime = now.format(format);
-				System.out.println("[" + username + " - " 
-								+ socket.getLocalAddress() + ":" 
-								+ socket.getLocalPort() + " - " 
-								+ formatDateTime + "] : Image "
-								+ processedImageNom 
-								+ " received for processing");				
-				// traitement de l' image
+				printClientInformation(socket, username, password, processedImageNom);
 				applySobelFilter();
-				// envoi de l' image traite
 				sendImage();
 		        socket.shutdownOutput();
-
-			// si le username existe et que le mdp est bon
-			}  else if (userDB.get(username).equals(password)) {
+		        
+			} else if (userDB.get(username).equals(password)) {
 				System.out.print("Authentication successful.\n");
-				System.out.print("Hello from server - you are client#" + clientNumber + "\n"); // envoi de message				
-				//envoyer au client le message 
+				System.out.print("Hello from server - you are client#" + clientNumber + "\n");	
 				pr.println("Authentication successful.\n");
-				pr.println("Hello from server - you are client#" + clientNumber + "\n"); // envoi de message
+				pr.println("Hello from server - you are client#" + clientNumber + "\n");
 				pr.flush();
 				
 				String processedImageNom = bf.readLine();
-		        System.out.println("image :" + processedImageNom);
-		        
-				// reception de l' image
-		       
+		        System.out.println("image :" + processedImageNom);		       
 				receiveImage(socket);
-				
-				LocalDateTime now = LocalDateTime.now();
-				DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy@HH:mm:ss");
-				String formatDateTime = now.format(format);
-				System.out.println("[" + username + " - " 
-								+ socket.getLocalAddress() + ":" 
-								+ socket.getLocalPort() + " - " 
-								+ formatDateTime + "] : Image "
-								+ processedImageNom 
-								+ " received for processing");
-
-				// traitement de l' image
+				printClientInformation(socket, username, password, processedImageNom);
 				applySobelFilter();
-				// envoi de l' image traite
 				sendImage();
 		        socket.shutdownOutput();
+		        
 			} else {
 				System.out.print("Error authentication failed. Incorrect password.\n");
 				pr.println("Error authentication failed. Incorrect password.");
