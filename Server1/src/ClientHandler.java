@@ -107,6 +107,7 @@ public class ClientHandler extends Thread {
 				pr.flush();
 				
 				String processedImageNom = bf.readLine();
+				System.out.println("image :" + processedImageNom);
 				receiveImage(socket);
 				printClientInformation(socket, username, password, processedImageNom);
 				applySobelFilter();
