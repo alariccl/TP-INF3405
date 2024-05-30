@@ -134,7 +134,6 @@ public class Client {
 	
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner(System.in);
-		PrintWriter pr = new PrintWriter(socket.getOutputStream());
 		
 		String serverAddress = askServerAddress(scanner);
 		int serverPort = askServerPort(scanner);
@@ -144,6 +143,7 @@ public class Client {
 		socket = new Socket(serverAddress, serverPort);
 		System.out.format("The server is running on %s:%d%n", serverAddress, serverPort);
 		
+		PrintWriter pr = new PrintWriter(socket.getOutputStream());
 		sendUsernamePassword(socket, pr, username, password);
 
 		InputStream is = socket.getInputStream();
